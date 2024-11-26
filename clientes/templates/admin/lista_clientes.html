@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Lista de Clientes</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: url('background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .clientes-list {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .clientes-list li {
+            background-color: #ffffff;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .no-clients {
+            text-align: center;
+            color: #ff0000;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lista de Clientes</h1>
+
+        <div class="button-container">
+            {% if botao_ativo %}
+                <form method="POST" action="{% url 'clientes:sortear_clientes' %}">
+                    {% csrf_token %}
+                    <button type="submit">Sortear</button>
+                </form>
+            {% else %}
+                <p>O botão de sorteio está inativo.</p>
+            {% endif %}
+        </div>
+
+        {% if clientes %}
+            <div class="clientes-list">
+                <ul>
+                    {% for cliente in clientes %}
+                        <li><strong>{{ cliente.nome }}</strong> - <em>{{ cliente.ticket }}</em></li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <p class="no-clients">Nenhum cliente disponível.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Tickets e Ganhadores</title>
+    <style>
+        /* Todo o estilo da página */
+        body {
+            font-family: Arial, sans-serif;
+            background: url('{% if config.imagem_fundo %}{{ config.imagem_fundo.url }}{% else %}background.jpg{% endif %}') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #0056b3;
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            color: #007bff;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            width: 100%;
+            max-width: 400px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .results-container {
+            background-color: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+
+        .ganhadores-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+        }
+
+        .ganhadores-table th,
+        .ganhadores-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .ganhadores-table th {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .no-result {
+            color: #ff0000;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .termos {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .termos a {
+            color: #000;
+            text-decoration: underline;
+            font-weight: bold;
+        }
+
+        .menu {
+            position: fixed;
+            top: 20px;
+            right: 5%;
+            z-index: 1000;
+        }
+
+        .menu-button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .menu-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            right: 0;
+            top: 100%;
+            min-width: 160px;
+        }
+
+        .menu-content a {
+            display: block;
+            padding: 10px;
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .menu-content a:hover {
+            background-color: #f0f0f0;
+        }
+
+        .menu.show .menu-content {
+            display: block;
+        }
+    </style>
+    <script>
+        function toggleMenu() {
+            document.querySelector('.menu').classList.toggle('show');
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Mega Sorteio</h1>
+        </div>
+
+        <form method="get" action="{% url 'clientes:home' %}">
+            <label for="cpf">Digite o CPF:</label>
+            <input type="text" id="cpf" name="cpf" value="{{ cpf_query }}" oninput="this.value = this.value.replace(/\D/g, '')">
+            <button type="submit">Consultar</button>
+        </form>
+
+        <div class="results-container">
+            {% if clientes %}
+            <h2>Tickets encontrados para o CPF {{ cpf_query }}:</h2>
+            <ul>
+                {% for cliente in clientes %}
+                <li><span class="ticket">Ticket:</span> {{ cliente.ticket }}</li>
+                {% endfor %}
+            </ul>
+            {% elif cpf_query %}
+            <p class="no-result">Nenhum ticket encontrado para o CPF {{ cpf_query }}.</p>
+            {% endif %}
+        </div>
+
+        <div class="results-container">
+            <h2>Ganhadores do Sorteio</h2>
+            {% if ganhadores %}
+            <table class="ganhadores-table">
+                <thead>
+                    <tr>
+                        <th>Colocação</th>
+                        <th>Nome</th>
+                        <th>Ticket</th>
+                        <th>Cidade</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ganhador in ganhadores %}
+                    <tr>
+                        <td>{{ forloop.counter }}º</td>
+                        <td>{{ ganhador.nome }}</td>
+                        <td>{{ ganhador.ticket }}</td>
+                        <td>{{ ganhador.cidade }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="no-result">O sorteio ainda não foi realizado.</p>
+            {% endif %}
+        </div>
+
+        <div class="termos">
+            {% if config.termos_arquivo %}
+            <a href="{{ config.termos_arquivo.url }}" download>Termos & Condições</a>
+            {% else %}
+            <p>Termos & Condições não disponíveis.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="menu">
+        <button class="menu-button" onclick="toggleMenu()">Menu</button>
+        <div class="menu-content">
+            <a href="{% url 'admin:index' %}">Configurações</a>
+            <a href="{% url 'clientes:lista_clientes' %}">Sortear Clientes</a>
+        </div>
+    </div>
+</body>
+
+</html>

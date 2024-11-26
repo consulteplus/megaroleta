@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+</head>
+<body>
+    <h1>Consulta de Ticket</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Consultar</button>
+    </form>
+
+    <h2>Ganhadores do Sorteio</h2>
+    <ul>
+        {% for cliente in ganhadores %}
+            <li>{{ cliente.nome }} - {{ cliente.numero }}</li>
+        {% empty %}
+            <li>Nenhum ganhador até o momento.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

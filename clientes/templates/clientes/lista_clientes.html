@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Lista de Clientes</title>
+    <style>
+	/* Adiciona uma classe de fade-in para a animação */
+.fade-in {
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.fade-in.visible {
+    opacity: 1;
+}
+        body {
+            font-family: Arial, sans-serif;
+            background: url('{% if config.imagem_fundo %}{{ config.imagem_fundo.url }}{% else %}background.jpg{% endif %}') no-repeat center center fixed;
+            background-size: cover;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #0056b3;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            position: relative;
+        }
+
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .clientes-list {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .clientes-list li {
+            background-color: #ffffff;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+        }
+
+        .no-clients {
+            text-align: center;
+            color: #ff0000;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        /* Animação do sorteio */
+        .loading {
+            text-align: center;
+            font-size: 24px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .loading span {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .loading .dots {
+            display: inline-block;
+            font-size: 24px;
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+
+            0%,
+            20% {
+                opacity: 0;
+            }
+
+            40% {
+                opacity: 1;
+            }
+
+            60% {
+                opacity: 0;
+            }
+
+            80%,
+            100% {
+                opacity: 1;
+            }
+        }
+
+        /* Menu de opções */
+        .menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .menu-button {
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .menu-button:hover {
+            background-color: #0056b3;
+        }
+
+        .menu-content {
+            display: none;
+            position: absolute;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            right: 0;
+            top: 100%;
+            z-index: 1;
+            min-width: 160px;
+        }
+
+        .menu-content a {
+            display: block;
+            padding: 10px;
+            color: #007bff;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .menu-content a:hover {
+            background-color: #f0f0f0;
+        }
+
+        .menu.show .menu-content {
+            display: block;
+        }
+
+        /* Estiliza a lista de clientes */
+        .clientes-list {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px auto;
+            padding: 0;
+            max-width: 900px;
+            text-align: center;
+        }
+
+        #clientes-ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0 auto;
+        }
+
+        .cliente-item {
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin: 10px auto;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, box-shadow 0.3s;
+            max-width: 100%;
+            display: inline-block;
+            text-align: left;
+        }
+
+        .cliente-item:hover {
+            background-color: #f1f1f1;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+        .cliente-info {
+            margin-bottom: 12px;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #333;
+            display: inline-block;
+            min-width: 100px;
+        }
+
+        .value {
+            color: #555;
+            font-size: 16px;
+        }
+
+        .no-clients {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            font-size: 18px;
+        }
+
+        /* Adiciona estilo para a colocação */
+        .placement {
+            font-weight: bold;
+            font-size: 18px;
+            color: #007bff;
+            margin-right: 10px;
+        }
+    </style>
+    <script>
+        function toggleMenu() {
+            document.querySelector('.menu').classList.toggle('show');
+        }
+    </script>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Mega Sorteio</h1>
+
+        <div class="button-container">
+            {% if botao_ativo %}
+            <form id="sortear-form" method="POST" action="{% url 'clientes:lista_clientes' %}">
+                {% csrf_token %}
+                <button type="submit">Sortear</button>
+            </form>
+            {% else %}
+            <p>O botão de sorteio está inativo.</p>
+            {% endif %}
+        </div>
+
+        <div id="loading" class="loading">
+            Sorteando<span class="dots">...</span>
+        </div>
+
+        <div id="clientes-list" class="clientes-list">
+            <ul id="clientes-ul">
+    {% if clientes %}
+    {% for cliente in clientes %}
+    <li data-timestamp="{{ forloop.counter0 }}" class="cliente-item fade-in">
+        <div class="cliente-info">
+            <strong class="label"><span class="placement">{{ forloop.counter }}º</span>Nome:</strong> <span class="value">{{ cliente.nome }}</span>
+        </div>
+        <div class="cliente-info">
+            <strong class="label">Cidade:</strong> <span class="value">{{ cliente.cidade }}</span>
+        </div>
+        <div class="cliente-info">
+            <strong class="label">Ticket:</strong> <em class="value">{{ cliente.ticket }}</em>
+        </div>
+    </li>
+    {% endfor %}
+    {% else %}
+    <p class="no-clients">O sorteio ainda não foi realizado.</p>
+    {% endif %}
+</ul>
+        </div>
+    </div>
+
+    <script>
+        function startSortear() {
+            document.getElementById('sortear-form').submit();
+        }
+// Nova função para exibir clientes um por um com intervalo
+    function mostrarClientesComIntervalo() {
+        const clientes = document.querySelectorAll('.cliente-item');
+        let i = 0;
+
+        function mostrarProximoCliente() {
+            if (i < clientes.length) {
+                clientes[i].classList.add('visible');  // Aplica a classe 'visible' que faz o fade-in
+                i++;
+                setTimeout(mostrarProximoCliente, 5000);  // Chama a função para o próximo cliente após 3 segundos
+            }
+        }
+
+        mostrarProximoCliente();  // Começa a mostrar o primeiro cliente
+    }
+
+    // Chamar a função assim que a página carregar
+    window.onload = function() {
+        mostrarClientesComIntervalo();
+    };	
+    </script>
+
+    <div class="menu">
+        <button class="menu-button" onclick="toggleMenu()">Menu</button>
+        <div class="menu-content">
+            <a href="{% url 'admin:index' %}">Configurações</a>
+            <a href="{% url 'clientes:home' %}">Home</a>
+        </div>
+    </div>
+</body>
+
+</html>
