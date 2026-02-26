@@ -83,6 +83,11 @@ DATABASES = {
         'PASSWORD': 'qualidade@trunks.57',
         'HOST': '187.62.153.52',
         'PORT': '5432',
+        'OPTIONS': {
+            'connect_timeout': 30,
+            'options': '-c statement_timeout=30000',  # 30 segundos
+        },
+        'CONN_MAX_AGE': 600,  # Manter conexão por 10 minutos
     }
 }
 
@@ -136,3 +141,46 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 5000000
 DATA_UPLOAD_MAX_MEMORY_SIZE = 52428800*10  # 50 MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 52428800*10  # 50 MB
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+        'file': {
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'sincronizacao.log'),
+            'maxBytes': 1024 * 1024 * 10,  # 10 MB
+            'backupCount': 5,
+            'formatter': 'verbose',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django.db.backends': {
+            'level': 'ERROR',
+        },
+        'clientes': {
+            'level': 'INFO',
+            'handlers': ['console', 'file'],
+            'propagate': False,
+        },
+    },
+}

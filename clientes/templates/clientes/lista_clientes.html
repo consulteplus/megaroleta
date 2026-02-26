@@ -256,7 +256,7 @@
 
 <body>
     <div class="container">
-        <h1>Baile Do Laéllyo</h1>
+        <h1>{% if config.titulo %}{{ config.titulo }}{% else %}Mega Sorteio{% endif %}</h1>
 
         <div class="button-container">
             {% if botao_ativo %}

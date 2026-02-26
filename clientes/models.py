@@ -26,7 +26,9 @@ class CSVFile(models.Model):
         return f"CSV importado em {self.uploaded_at}"
 
 class ConfiguracaoSite(models.Model):
+    titulo = models.CharField(max_length=255, default='Mega Sorteio', verbose_name='Título do Site')
     imagem_fundo = models.ImageField(upload_to='backgrounds/', blank=True, null=True)
+    banner = models.ImageField(upload_to='banners/', blank=True, null=True, verbose_name='Banner')
     termos_arquivo = models.FileField(upload_to='termos/', blank=True, null=True)
     def __str__(self):
         return "Configuração do Site"

@@ -1,0 +1,61 @@
+select distinct on (cli.codigo_cliente)
+    cli.codigo_cliente as id_cliente,
+    cli.nome_razaosocial as nome,
+    cli.cpf_cnpj as cpf,
+    cli.telefone_primario as numero,
+    ci.nome as cidade,
+    (
+        case when
+            (
+                select min(cac.id_cliente_acesso_central)
+                from cliente_acesso_central cac
+                where cac.id_cliente = cli.id_cliente
+                  and cac.status = 'success'
+                  and cac.origem = 'app_cliente'
+            ) is not null then 5 else 0 end + --5 else 0 end +
+
+        case when
+            (
+                select min(cob.id_cobranca)
+                from cobranca cob
+                where cob.id_cliente_servico = cs.id_cliente_servico
+                  and cob.data_pagamento < cob.data_vencimento
+                  and date_trunc('month', cob.data_vencimento) = date_trunc('month', current_date)
+            ) is not null then 10 else 0 end +
+
+        case when
+            (
+                select min(cob.id_cobranca)
+                from cobranca cob
+                where cob.id_cliente_servico = cs.id_cliente_servico
+                  and cob.data_pagamento is not null
+                  and cob.status = 'baixado_pix'
+                  and date_trunc('month', cob.data_vencimento) = date_trunc('month', current_date)
+            ) is not null then 5 else 0 end +
+
+        case when
+            (
+                select min(cc.id_cliente)
+                from cobranca cob
+                left join cliente_cartao cc
+                    on cli.id_cliente = cc.id_cliente
+                where cob.id_cliente_servico = cs.id_cliente_servico
+                  and cob.data_pagamento is not null
+                  and cob.status = 'baixado_cartao'
+                  and cc.deleted_at is null
+                  and cc.padrao
+                  and date_trunc('month', cob.data_vencimento) = date_trunc('month', current_date)
+            ) is not null then 5 else 0 end
+    ) + 1 as qtd_tickets
+from
+    cliente_servico cs
+join cliente cli on cs.id_cliente = cli.id_cliente
+join cliente_servico_endereco cse on cs.id_cliente_servico = cse.id_cliente_servico
+join endereco_numero en on cse.id_endereco_numero = en.id_endereco_numero
+join cidade ci on en.id_cidade = ci.id_cidade
+JOIN cliente_servico_grupo csg on csg.id_cliente_servico = cs.id_cliente_servico
+JOIN grupo_cliente_servico gcs on gcs.id = csg.id_grupo_cliente_servico
+where
+    cse.tipo = 'instalacao'
+    and cs.id_servico_status in (11) --, 13, 14) -- hab, sus_ped, sus_deb
+    and gcs.descricao= 'Varejo'

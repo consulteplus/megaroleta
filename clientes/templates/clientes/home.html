@@ -153,6 +153,19 @@
         .menu.show .menu-content {
             display: block;
         }
+
+        .banner-container {
+            width: 100%;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .banner-image {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
     </style>
     <script>
         function toggleMenu() {
@@ -163,8 +176,13 @@
 
 <body>
     <div class="container">
+        {% if config.banner %}
+        <div class="banner-container">
+            <img src="{{ config.banner.url }}" alt="Banner" class="banner-image">
+        </div>
+        {% endif %}
         <div class="header">
-            <h1>Baile Do Laéllyo</h1>
+            <h1>{% if config.titulo %}{{ config.titulo }}{% else %}Mega Sorteio{% endif %}</h1>
         </div>
 
         <form method="get" action="{% url 'clientes:home' %}">

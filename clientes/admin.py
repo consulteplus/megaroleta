@@ -49,6 +49,9 @@ class ClienteAdmin(admin.ModelAdmin):
     search_fields = ('nome', 'cpf', 'ticket')    
     actions = [marcar_todos_nao_sorteados]
 
-admin.site.register(ConfiguracaoSite)
+@admin.register(ConfiguracaoSite)
+class ConfiguracaoSiteAdmin(admin.ModelAdmin):
+    list_display = ('__str__',)
+    fields = ('titulo', 'imagem_fundo', 'banner', 'termos_arquivo')
 admin.site.register(Cliente, ClienteAdmin)
 admin.site.register(Configuracao, ConfiguracaoAdmin)
