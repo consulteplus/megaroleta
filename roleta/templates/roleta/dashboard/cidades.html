@@ -1,0 +1,92 @@
+{% extends 'roleta/dashboard/base.html' %}
+
+{% block title %}Gestão de Cidades - Admin Roleta{% endblock %}
+{% block page_title %}Cidades Permitidas{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+    <h3 style="margin-top: 0; margin-bottom: 15px;">Adicionar Nova Cidade</h3>
+    <form method="post" style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="nova_cidade">
+
+        <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Nome
+                da Cidade</label>
+            <input type="text" name="nome" placeholder="Ex: Teresina" required
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 12px;">
+            <input type="checkbox" name="ativo" id="nova_cidade_ativa" checked>
+            <label for="nova_cidade_ativa" style="font-size: 13px; font-weight: 600; color: #64748b;">Ativo</label>
+        </div>
+
+        <div>
+            <button type="submit" class="btn-primary" style="padding: 10px 20px; white-space: nowrap;"><i
+                    class="fas fa-plus"></i> Adicionar Cidade</button>
+        </div>
+    </form>
+</div>
+
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Nome da Cidade</th>
+                <th>Status</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in cidades %}
+            <tr>
+                <td>
+                    <input type="text" name="nome" value="{{ c.nome }}" required form="form_atualizar_cid_{{ c.id }}"
+                        style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 8px;">
+                </td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        {% if c.ativo %}
+                        <input type="checkbox" name="ativo" id="cidade_ativa_{{ c.id }}" checked
+                            form="form_atualizar_cid_{{ c.id }}">
+                        <label for="cidade_ativa_{{ c.id }}"><span class="badge badge-success">Ativo</span></label>
+                        {% else %}
+                        <input type="checkbox" name="ativo" id="cidade_ativa_{{ c.id }}"
+                            form="form_atualizar_cid_{{ c.id }}">
+                        <label for="cidade_ativa_{{ c.id }}"><span class="badge badge-warning">Inativo</span></label>
+                        {% endif %}
+                    </div>
+                </td>
+                <td>
+                    <form method="post" id="form_atualizar_cid_{{ c.id }}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="atualizar_cidade">
+                        <input type="hidden" name="cidade_id" value="{{ c.id }}">
+                        <button type="submit" class="badge badge-success" style="border:none; cursor:pointer;"><i
+                                class="fas fa-save"></i> Atualizar</button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="excluir_cidade">
+                        <input type="hidden" name="cidade_id" value="{{ c.id }}">
+                        <button type="submit" class="badge badge-success"
+                            style="background: #fee2e2; color: #b91c1c; border:none; cursor:pointer;"
+                            onclick="return confirm('Tem certeza que deseja apagar a cidade {{ c.nome }}? Se tiver prêmios associados apenas a ela, eles não poderão ser ganhos por ninguém dessa cidade e passarão a valer para todas as cidades se não tiver outra cidade na lista.');"><i
+                                class="fas fa-trash"></i> Apagar</button>
+                    </form>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" style="text-align: center; color: #64748b; padding: 20px;">
+                    Nenhuma cidade cadastrada ainda.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

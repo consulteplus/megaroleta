@@ -1,0 +1,89 @@
+{% extends 'roleta/dashboard/base.html' %}
+
+{% block title %}Membros - Admin Roleta{% endblock %}
+{% block page_title %}Lista de Membros do Clube{% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content: space-between; margin-bottom: 30px; align-items: flex-end;">
+    <form method="get" style="display:flex; gap:15px; flex-grow:1; max-width: 600px;">
+        <div style="flex:1">
+            <label style="display:block; font-size: 13px; color: #666; margin-bottom: 5px;">Buscar por Nome ou
+                CPF</label>
+            <input type="text" name="q" value="{{ q }}" placeholder="Busca..."
+                style="width:100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px;">
+        </div>
+        <div>
+            <label style="display:block; font-size: 13px; color: #666; margin-bottom: 5px;">Cidade</label>
+            <select name="cidade" style="padding: 10px; border: 1px solid #ddd; border-radius: 10px;">
+                <option value="">Todas</option>
+                {% for city in todas_cidades %}
+                <option value="{{ city }}" {% if cidade == city %}selected{% endif %}>{{ city }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit"
+            style="padding: 10px 20px; background: #eee; border:none; border-radius: 10px; cursor:pointer; align-self: flex-end;">Filtrar</button>
+    </form>
+
+    <a href="{% url 'exportar_csv' %}" class="btn-export">
+        <i class="fas fa-file-csv"></i> Exportar Membros
+    </a>
+</div>
+
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>CPF</th>
+                <th>Cidade</th>
+                <th>Status</th>
+                <th>Saldo de Pontos</th>
+                <th>Giros Realizados</th>
+                <th>Último Cadastro</th>
+                <th>Histórico</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in participantes %}
+            <tr>
+                <td><strong>{{ p.nome }}</strong></td>
+                <td>{{ p.cpf }}</td>
+                <td>{{ p.cidade }}</td>
+                <td>
+                    {% if p.validado %}
+                    <span class="badge badge-success">Verificado</span>
+                    {% else %}
+                    <span class="badge badge-warning">Pendente</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <form method="POST" style="display:flex; gap:5px; align-items:center;">
+                        {% csrf_token %}
+                        <input type="hidden" name="membro_id" value="{{ p.id }}">
+                        <input type="number" name="saldo" value="{{ p.saldo }}"
+                            style="width:70px; padding:5px; border:1px solid #ddd; border-radius:5px;">
+                        <button type="submit" class="badge badge-success"
+                            style="border:none; cursor:pointer; padding:5px 8px;">
+                            <i class="fas fa-save"></i>
+                        </button>
+                    </form>
+                </td>
+                <td>
+                    <span class="badge badge-info">{{ p.giros.count }} giros</span>
+                </td>
+                <td>{{ p.data_cadastro|date:"d/m/Y H:i" }}</td>
+                <td>
+                    <a href="{% url 'dashboard_extrato_membro' p.id %}" class="badge"
+                        style="background:var(--primary-blue); color:white; text-decoration:none;">Ver Extrato</a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="8" style="text-align:center; padding: 40px; color: #999;">Nenhum membro encontrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

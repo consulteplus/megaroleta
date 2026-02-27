@@ -1,0 +1,58 @@
+{% extends 'roleta/dashboard/base.html' %}
+
+{% block title %}Histórico de Giros - Admin Roleta{% endblock %}
+{% block page_title %}Histórico de Giros (Transações){% endblock %}
+
+{% block content %}
+<div style="display:flex; justify-content: space-between; margin-bottom: 30px; align-items: flex-end;">
+    <form method="get" style="display:flex; gap:15px; flex-grow:1; max-width: 600px;">
+        <div style="flex:1">
+            <label style="display:block; font-size: 13px; color: #666; margin-bottom: 5px;">Buscar por Nome, CPF ou
+                Prêmio</label>
+            <input type="text" name="q" value="{{ q }}" placeholder="Busca..."
+                style="width:100%; padding: 10px; border: 1px solid #ddd; border-radius: 10px;">
+        </div>
+        <button type="submit"
+            style="padding: 10px 20px; background: #eee; border:none; border-radius: 10px; cursor:pointer; align-self: flex-end;">Filtrar</button>
+    </form>
+</div>
+
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Participante</th>
+                <th>Prêmio</th>
+                <th>Custo</th>
+                <th>Saldo Após</th>
+                <th>Data/Hora</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for g in giros %}
+            <tr>
+                <td>
+                    <strong>{{ g.membro.nome|default:g.nome }}</strong><br>
+                    <small style="color:#666">{{ g.cpf }}</small>
+                </td>
+                <td><span style="color: var(--primary-blue); font-weight: 600;">{{ g.premio }}</span></td>
+                <td><span style="color: #e53e3e;">-10 pts</span></td>
+                <td>{{ g.saldo }}</td>
+                <td>{{ g.data_criacao|date:"d/m/Y H:i:s" }}</td>
+                <td>
+                    <span
+                        class="badge {% if g.status == 'reservado' %}badge-warning{% elif g.status == 'ganhou' %}badge-success{% else %}badge-danger{% endif %}">
+                        {{ g.get_status_display }}
+                    </span>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" style="text-align:center; padding: 40px; color: #999;">Nenhum giro registrado.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -25,6 +25,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('clientes/', include('clientes.urls')),
     path('participacao/', include('participacao.urls')),  # Adicione esta linha para incluir URLs do aplicativo 'clientes'
+    path('roleta/', include('roleta.urls')),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

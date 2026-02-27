@@ -1,0 +1,666 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Participar - {{ config.nome_clube }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-blue: #000b4a;
+            --primary-rgb: 0, 11, 74;
+            --secondary-gold: #ffcc00;
+            --accent-red: #e53e3e;
+            --white: #ffffff;
+            --gray-100: #f7fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--gray-100);
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .main-container {
+            display: flex;
+            max-width: 1200px;
+            width: 100%;
+            background: var(--white);
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        .left-panel {
+            flex: 1.2;
+            background: var(--primary-blue);
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            min-height: 600px;
+        }
+
+        .right-panel {
+            flex: 1;
+            padding: 50px;
+            background: var(--white);
+        }
+
+        .roulette-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1;
+        }
+
+        .roulette-wrapper img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            z-index: 10;
+            filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.3));
+        }
+
+        .form-header {
+            margin-bottom: 40px;
+        }
+
+        .form-header h2 {
+            font-size: 32px;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+        }
+
+        .form-header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid #edf2f7;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 4px rgba(var(--primary-rgb), 0.1);
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(var(--primary-rgb), 0.2);
+            background: #001275;
+        }
+
+        .btn-primary:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .step-progress {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            flex: 1;
+            height: 6px;
+            background: #edf2f7;
+            border-radius: 3px;
+            position: relative;
+        }
+
+        .step.active {
+            background: var(--primary-blue);
+        }
+
+        .form-step-content {
+            display: none;
+        }
+
+        .form-step-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .selection-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .selection-card {
+            padding: 20px;
+            border: 2px solid #edf2f7;
+            border-radius: 15px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .selection-card:hover {
+            border-color: var(--primary-blue);
+            background: rgba(var(--primary-rgb), 0.02);
+        }
+
+        .selection-card.active {
+            border-color: var(--primary-blue);
+            background: rgba(var(--primary-rgb), 0.05);
+        }
+
+        .selection-card i {
+            font-size: 24px;
+            color: var(--primary-blue);
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .selection-card span {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--primary-blue);
+        }
+
+        @media (max-width: 900px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .left-panel {
+                padding: 30px;
+                min-height: 400px;
+            }
+
+            .right-panel {
+                padding: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main-container">
+        <!-- Left Panel: Roulette -->
+        <div class="left-panel">
+            <div class="roulette-wrapper">
+                {% if assets %}
+                {% for asset in assets %}
+                {% if asset.tipo == "frame" %}
+                <img id="roleta{{ asset.ordem|stringformat:'02d' }}" src="{{ asset.imagem.url }}" {% if asset.ordem != 0 %}style="display:none"{% endif %} alt="Roulette Frame">
+                {% endif %}
+                {% endfor %}
+                {% else %}
+                <img src="{% static 'roleta/images/roletaPremiosVirtuais00.png' %}" alt="Placeholder">
+                {% endif %}
+
+                {% for asset in assets %}
+                {% if asset.tipo == "pointer" %}
+                <img src="{{ asset.imagem.url }}" class="pointer" alt="Pointer">
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div> <!-- Right Panel: Form Flow -->
+        <div class="right-panel">
+            <div class="form-container">
+                <div class="form-header">
+                    <h2>{{ config.nome_clube }}</h2>
+                    <p>Complete o cadastro e ganhe prêmios exclusivos!</p>
+                </div>
+                {% if not sorteado_pos and not erro %}
+                <form id="multiStepForm" action="{% url 'cadastrar_participante' %}" method="POST">
+                    {% csrf_token %}
+                    <div class="step-progress">
+                        <div class="step active" id="step-nav-1"></div>
+                        <div class="step" id="step-nav-2"></div>
+                        <div class="step" id="step-nav-3"></div>
+                        <div class="step" id="step-nav-4"></div>
+                    </div>
+
+                    <div class="form-step-content active" id="step-1">
+                        <div id="saldo-container"
+                            style="display:none; background: rgba(var(--primary-rgb), 0.1); padding: 15px; border-radius: 12px; margin-bottom: 25px; text-align: center;">
+                            <div style="font-size: 13px; color: var(--primary-blue); font-weight: 600;">SEU SALDO ATUAL
+                            </div>
+                            <div id="saldo-valor" style="font-size: 24px; font-weight: 800; color: #000b4a;">0 PONTOS
+                            </div>
+                            <div style="font-size: 11px; color: #666; margin-top: 5px;">Custo por giro: {{
+                                config.custo_giro }} pontos</div>
+                        </div>
+                        <p class="question-text">Você já é cliente MegaLink?</p>
+                        <div class="selection-container">
+                            <div class="selection-card" onclick="selectProfile('sim')"><i
+                                    class="fas fa-user-check"></i><span>Sim, já sou</span></div>
+                            <div class="selection-card" onclick="selectProfile('nao')"><i
+                                    class="fas fa-user-plus"></i><span>Ainda não</span></div>
+                        </div>
+                        <input type="hidden" id="perfil_cliente" name="perfil_cliente" required>
+                        <input type="hidden" id="id_cliente_hubsoft" name="id_cliente_hubsoft">
+                        <button type="button" class="btn-primary" onclick="nextStep(2)"
+                            style="margin-top: 40px;">Continuar</button>
+                    </div>
+
+                    <div class="form-step-content" id="step-2">
+                        <div id="campos-pessoais">
+                            <div class="form-group"><label for="nome">Nome Completo</label><input type="text"
+                                    class="form-control" id="nome" name="nome" placeholder="Seu nome"></div>
+                        </div>
+                        <div class="row" style="display:flex; gap:15px">
+                            <div class="form-group" style="flex:1"><label for="cpf">CPF</label><input type="text"
+                                    class="form-control" id="cpf" name="cpf" placeholder="000.000.000-00" required>
+                            </div>
+                            <div class="form-group" id="campo-telefone" style="flex:1"><label
+                                    for="telefone">Telefone</label><input type="text" class="form-control" id="telefone"
+                                    name="telefone" placeholder="(00) 00000-0000"></div>
+                        </div>
+                        <div class="form-group" id="campo-email"><label for="email">E-mail</label><input type="email"
+                                class="form-control" id="email" name="email" placeholder="seu@email.com"></div>
+                        <button type="button" id="btn-next-2" class="btn-primary" onclick="nextStep(3)">Próximo
+                            Passo</button>
+                    </div>
+
+                    <div class="form-step-content" id="step-3">
+                        <div class="row" style="display:flex; gap:15px">
+                            <div class="form-group" style="flex:1"><label for="cep">CEP</label><input type="text"
+                                    class="form-control" id="cep" name="cep" onchange="completa_endereco()"></div>
+                            <div class="form-group" style="flex:2">
+                                <label for="cidade">Cidade</label>
+                                <select class="form-control" id="cidade" name="cidade">
+                                    <option value="" disabled selected>Selecione sua cidade</option>
+                                    {% for city in cidades %}
+                                    <option value="{{ city }}">{{ city }}</option> {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row" style="display:flex; gap:15px">
+                            <div class="form-group" style="flex:3"><label for="rua">Rua</label><input type="text"
+                                    class="form-control" id="rua" name="rua"></div>
+                            <div class="form-group" style="flex:1"><label for="numero_casa">Nº</label><input type="text"
+                                    class="form-control" id="numero_casa" name="numero_casa"></div>
+                        </div>
+                        <div class="form-group"><label for="bairro">Bairro</label><input type="text"
+                                class="form-control" id="bairro" name="bairro"></div>
+                        <input type="hidden" name="estado" id="estado" value="RS">
+                        <div style="margin-bottom: 20px; font-size: 13px; color: #666;"><input type="checkbox"
+                                id="concordo_termos" checked> Concordo com os <a
+                                href="{% static 'roleta/Regulamento.pdf' %}" style="color:var(--primary-blue)">termos da
+                                promoção</a></div>
+                        <button type="button" class="btn-primary" onclick="prepareAndRequestOTP()">Finalizar
+                            Cadastro</button>
+                    </div>
+
+                    <div class="form-step-content" id="step-4">
+                        <div class="form-header" style="text-align: center;">
+                            <i class="fab fa-whatsapp"
+                                style="font-size: 50px; color: #25D366; margin-bottom: 20px;"></i>
+                            <h3>Verificação de Segurança</h3>
+                            <p>Enviamos um código de 6 dígitos para o seu WhatsApp:</p>
+                            <div id="otp-phone-display"
+                                style="font-weight: 800; font-size: 18px; color: var(--primary-blue); margin: 15px 0;">
+                                (X) XXXX-XXXX</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="otp_code">Código de Verificação</label>
+                            <input type="text" class="form-control" id="otp_code" placeholder="000000" maxlength="6"
+                                style="text-align: center; font-size: 24px; letter-spacing: 10px; font-weight: 800;">
+                        </div>
+                        <button type="button" id="btn-validar-otp" class="btn-primary" onclick="validarOTP()">Verificar
+                            e Continuar</button>
+                        <div style="text-align: center; margin-top: 20px;">
+                            <a href="javascript:void(0)" onclick="solicitarOTP(true)" id="btn-reenviar"
+                                style="font-size: 13px; color: var(--primary-blue); text-decoration: none;">Não recebeu?
+                                Reenviar código</a>
+                        </div>
+                    </div>
+                </form>
+                {% else %}
+                <div class="result-area" style="text-align: center; margin-top: 20px;">
+                    {% if erro %}
+                    <div class="error-msg"
+                        style="color: #dc3545; padding: 20px; border: 1px solid #f5c6cb; border-radius: 12px; background: #f8d7da;">
+                        {% if erro == "jah_cadastrado" %}
+                        <i class="fas fa-exclamation-circle" style="font-size: 40px; margin-bottom: 20px;"></i>
+                        <h3 style="margin-bottom: 15px;">Atenção!</h3>
+                        <p>Olá <strong>{{ nome }}</strong>! Você já está participando desta promoção.</p>
+                        {% else %}
+                        <h3>Atenção!</h3>
+                        <p>{{ erro }}</p>
+                        {% endif %}
+                        <button onclick="window.location.href='{% url 'roleta_index' %}'" class="btn-primary"
+                            style="margin-top: 20px; width: unset; padding: 10px 30px;">Voltar</button>
+                    </div>
+                    {% elif sorteado_pos %}
+                    <div id="ready-to-spin">
+                        <i class="fas fa-check-circle"
+                            style="font-size: 60px; color: #28a745; margin-bottom: 20px;"></i>
+                        <h2 style="color: #000b4a; margin-bottom: 10px;">Cadastro Confirmado!</h2>
+                        <p style="color: #666; margin-bottom: 40px;">Tudo pronto para descobrir seu prêmio.</p>
+                        <button type="button" id="btnGirar" class="btn-primary" onclick="iniciarSorteio()"
+                            style="width: 100%; padding: 20px; font-size: 20px;">GIRAR A ROLETA!</button>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <script src="{% static 'roleta/js/jquery.min.js' %}"></script>
+    <script>
+        var sorteado = {{ sorteado_pos|default:0 }};
+        var premioGanhado = "{{ premio_nome|default:'' }}";
+        var lastKnownPhone = "";
+
+        function selectProfile(perfil) {
+            $('.selection-card').removeClass('active');
+            if (perfil === 'sim') {
+                $('.selection-card:first').addClass('active');
+                $('#campos-pessoais, #campo-telefone, #campo-email').hide();
+                $('#btn-next-2').text('Finalizar e Girar!');
+                $('#step-nav-3').css('opacity', '0.3');
+            } else {
+                $('.selection-card:last').addClass('active');
+                $('#campos-pessoais, #campo-telefone, #campo-email').show();
+                $('#btn-next-2').text('Próximo Passo');
+                $('#step-nav-3').css('opacity', '1');
+            }
+            $('#perfil_cliente').val(perfil);
+        }
+
+        function nextStep(step) {
+            if (step === 2 && !$('#perfil_cliente').val()) { alert('Por favor, selecione seu perfil.'); return; }
+            if (step === 3) {
+                const isClient = $('#perfil_cliente').val() === 'sim';
+                if (isClient) {
+                    if (!$('#cpf').val()) { alert('Por favor, informe seu CPF.'); return; }
+                } else {
+                    if (!$('#nome').val() || !$('#cpf').val() || !$('#telefone').val()) { alert('Por favor, preencha todos os campos obrigatórios.'); return; }
+                }
+
+                const cpfValue = $('#cpf').val();
+                const btn = $('#step-2 .btn-primary');
+                const originalText = btn.text();
+                btn.prop('disabled', true).text('Verificando...');
+
+                $.ajax({
+                    url: "{% url 'verificar_cliente' %}",
+                    method: "POST",
+                    data: { 'cpf': cpfValue, 'csrfmiddlewaretoken': '{{ csrf_token }}' },
+                    success: function (response) {
+                        btn.prop('disabled', false).text(originalText);
+                        if (response.is_client) {
+                            $('#perfil_cliente').val('sim');
+                            $('.selection-card').removeClass('active');
+                            $('.selection-card:first').addClass('active');
+                            $('#saldo-valor').text(response.saldo + ' PONTOS');
+                            $('#saldo-container').fadeIn();
+
+                            if (response.id_cliente) $('#id_cliente_hubsoft').val(response.id_cliente);
+                            if (response.nome_razaosocial) $('#nome').val(response.nome_razaosocial);
+                            if (response.email_principal) $('#email').val(response.email_principal);
+                            if (response.telefone_primario) {
+                                $('#telefone').val(response.telefone_primario);
+                                lastKnownPhone = response.telefone_primario;
+                                $('#otp-phone-display').text(response.masked_tel || (lastKnownPhone.substring(0, 4) + "****" + lastKnownPhone.substring(lastKnownPhone.length - 4)));
+                            }
+
+                            if (response.cep) $('#cep').val(response.cep);
+                            if (response.endereco) $('#rua').val(response.endereco);
+                            if (response.numero) $('#numero_casa').val(response.numero);
+                            if (response.bairro) $('#bairro').val(response.bairro);
+                            if (response.cidade) $('#cidade').val(response.cidade.toUpperCase());
+
+                            if (response.saldo < {{ config.custo_giro }
+                        }) {
+                    btn.prop('disabled', true).text('Saldo insuficiente').css('background', '#ccc');
+                    alert('Ops! Você não tem pontos suficientes para girar a roleta agora.');
+                    return;
+                }
+                solicitarOTP(false);
+            } else {
+                $('#perfil_cliente').val('nao');
+                $('.selection-card').removeClass('active');
+                $('.selection-card:last').addClass('active');
+                $('#saldo-container').hide();
+                executeTransition(step);
+            }
+        },
+        error: function (xhr) {
+            btn.prop('disabled', false).text(originalText);
+            executeTransition(step);
+        }
+                });
+        return;
+            }
+        executeTransition(step);
+        }
+
+        function prepareAndRequestOTP() {
+            $.ajax({
+                url: "{% url 'pre_cadastrar' %}",
+                method: "POST",
+                data: {
+                    'nome': $('#nome').val(),
+                    'cpf': $('#cpf').val(),
+                    'telefone': $('#telefone').val(),
+                    'email': $('#email').val(),
+                    'cep': $('#cep').val(),
+                    'cidade': $('#cidade').val(),
+                    'rua': $('#rua').val(),
+                    'numero_casa': $('#numero_casa').val(),
+                    'bairro': $('#bairro').val(),
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                }
+            });
+
+            lastKnownPhone = $('#telefone').val();
+            const tel = lastKnownPhone;
+            if (tel && tel.length > 4) {
+                $('#otp-phone-display').text('(**) ****-' + tel.substring(tel.length - 4));
+            }
+            solicitarOTP(false);
+        }
+
+        function solicitarOTP(reenviar) {
+            const cpf = $('#cpf').val();
+            const telefone = $('#telefone').val() || lastKnownPhone;
+
+            if (reenviar) {
+                $('#btn-reenviar').text('Enviando...');
+            }
+
+            $.ajax({
+                url: "{% url 'solicitar_otp' %}",
+                method: "POST",
+                data: {
+                    'cpf': cpf,
+                    'telefone': telefone,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    if (response.success) {
+                        if (reenviar) {
+                            alert('Novo código enviado com sucesso!');
+                            $('#btn-reenviar').text('Não recebeu? Reenviar código');
+                        } else {
+                            executeTransition(4);
+                        }
+                    } else {
+                        alert('Erro ao enviar código: ' + response.error);
+                        $('#btn-reenviar').text('Não recebeu? Reenviar código');
+                    }
+                },
+                error: function () {
+                    alert('Erro na conexão. Tente novamente.');
+                    $('#btn-reenviar').text('Não recebeu? Reenviar código');
+                }
+            });
+        }
+
+        function validarOTP() {
+            const code = $('#otp_code').val();
+            if (code.length < 6) { alert('Digite o código de 6 dígitos.'); return; }
+
+            $('#btn-validar-otp').prop('disabled', true).text('Verificando...');
+
+            $.ajax({
+                url: "{% url 'validar_otp' %}",
+                method: "POST",
+                data: {
+                    'codigo': code,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    console.log("Servidor respondeu:", response);
+                    if (response.success) {
+                        $('#multiStepForm').submit();
+                    } else {
+                        alert('NOVO DIAGNÓSTICO:\nEnvio: ' + code + '\nErro: ' + (response.error || 'Inválido') + '\nJSON: ' + JSON.stringify(response));
+                        $('#btn-validar-otp').prop('disabled', false).text('Verificar e Continuar');
+                    }
+                },
+                error: function (xhr) {
+                    alert('Erro AJAX: ' + xhr.status + ' ' + xhr.statusText);
+                    $('#btn-validar-otp').prop('disabled', false).text('Verificar e Continuar');
+                }
+            });
+        }
+
+        function executeTransition(step) {
+            $('.form-step-content').removeClass('active');
+            $('#step-' + step).addClass('active');
+            $('.step').removeClass('active');
+            for (let i = 1; i <= step; i++) {
+                $('#step-nav-' + i).addClass('active');
+            }
+        }
+
+        function completa_endereco() {
+            var cep = $("#cep").val().replace(/\D/g, '');
+            if (cep.length != 8) return;
+            $.ajax({ url: "https://viacep.com.br/ws/" + cep + "/json/", cache: false }).done(function (end) {
+                if (!end.erro) {
+                    $("#rua").val(end.logradouro);
+                    $("#estado").val(end.uf);
+                    $("#bairro").val(end.bairro);
+                    $("#cidade").val(end.localidade);
+                }
+            });
+        }
+
+        var imagem_atual = 0;
+        var velocidade = 1000;
+        var etapa = 0;
+        var acabou = false;
+        var contador = 0;
+
+        function iniciarSorteio() {
+            $('#btnGirar').prop('disabled', true).text('SORTEANDO...');
+            trocaImagem();
+        }
+
+        function trocaImagem() {
+            if (!acabou) {
+                var image_velha = "roleta" + ("00" + imagem_atual).slice(-2);
+                var image_nova_idx = (imagem_atual == 12) ? 1 : imagem_atual + 1;
+                var image_nova = "roleta" + ("00" + image_nova_idx).slice(-2);
+                if (imagem_atual == 12) imagem_atual = 0;
+                $("#" + image_velha).hide(0);
+                $("#" + image_nova).show(0);
+                imagem_atual++;
+                if (etapa == 0) { velocidade -= 150; if (velocidade < 100) { etapa = 1; contador = 0; } }
+                else if (etapa == 1) { contador++; if (contador == 40) etapa = 2; }
+                else if (etapa == 2) { velocidade += 100; if (velocidade > 600) etapa = 3; }
+                else if (etapa == 3) { if (imagem_atual == sorteado) acabou = true; }
+                setTimeout(trocaImagem, velocidade);
+            } else { exibirPremio(); }
+        }
+
+        function exibirPremio() {
+            var msg = premioGanhado || "um prêmio especial";
+            alert("PARABÉNS!\n\nVocê ganhou: " + msg + "!\n\nSua consultora entrará em contato em breve.");
+            window.location.href = "{% url 'roleta_index' %}";
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,66 @@
+{% extends 'roleta/dashboard/base.html' %}
+
+{% block title %}Extrato de Pontuação - {{ membro.nome }}{% endblock %}
+{% block page_title %}Extrato de Pontuação: {{ membro.nome }} (CPF: {{ membro.cpf }}){% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px;">
+    <a href="{% url 'dashboard_participantes' %}" class="btn-primary" style="background: #e2e8f0; color: #475569;"><i
+            class="fas fa-arrow-left"></i> Voltar para Participantes</a>
+</div>
+
+<div class="dashboard-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 30px;">
+    <div class="stat-card">
+        <h3 style="color: #64748b; font-size: 14px; margin-bottom: 10px;">Saldo Atual (Para Giros)</h3>
+        <div class="value" style="color: var(--primary-blue);">{{ membro.saldo }} PTS</div>
+    </div>
+    <div class="stat-card">
+        <h3 style="color: #64748b; font-size: 14px; margin-bottom: 10px;">Total de Giros Realizados</h3>
+        <div class="value" style="color: var(--primary-blue);">{{ membro.giros }}</div>
+    </div>
+    <div class="stat-card">
+        <h3 style="color: #64748b; font-size: 14px; margin-bottom: 10px;">Nível Atual (XP)</h3>
+        <div class="value" style="color: var(--primary-gold);">{{ membro.nivel_atual }} <span
+                style="font-size:14px; color:#64748b;">({{ membro.xp_total }} XP)</span></div>
+    </div>
+</div>
+
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Data e Hora</th>
+                <th>Regra/Gatilho</th>
+                <th>Descrição Original</th>
+                <th>Pontos Saldo</th>
+                <th>Pontos XP</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for lance in extrato %}
+            <tr>
+                <td>{{ lance.data_recebimento|date:"d/m/Y H:i:s" }}</td>
+                <td><strong>{{ lance.regra.nome_exibicao }}</strong></td>
+                <td>{{ lance.descricao_extra }}</td>
+                <td
+                    style="color: {% if lance.pontos_saldo_ganhos > 0 %}green{% else %}red{% endif %}; font-weight:bold;">
+                    {% if lance.pontos_saldo_ganhos > 0 %}+{% endif %}{{ lance.pontos_saldo_ganhos }}
+                </td>
+                <td style="color: goldenrod; font-weight:bold;">
+                    +{{ lance.pontos_xp_ganhos }}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: #64748b; padding: 30px;">Nenhuma movimentação
+                    encontrada para este membro.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<div style="margin-top: 20px; text-align: right;">
+    <p style="color: #94a3b8; font-size: 12px;">Estes dados são gerados automaticamente pelo GamificationService.</p>
+</div>
+{% endblock %}

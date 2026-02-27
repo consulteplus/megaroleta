@@ -1,0 +1,122 @@
+{% extends 'roleta/dashboard/base.html' %}
+
+{% block title %}Gestão de Prêmios - Admin Roleta{% endblock %}
+{% block page_title %}Estoque de Prêmios{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 20px; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0;">
+    <h3 style="margin-top: 0; margin-bottom: 15px;">Adicionar Novo Prêmio</h3>
+    <form method="post" style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="novo_premio">
+
+        <div style="flex: 1; min-width: 200px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Nome
+                do Prêmio</label>
+            <input type="text" name="nome" placeholder="Ex: Roteador Wi-Fi 6" required
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+        </div>
+        <div style="flex: 1; min-width: 150px;">
+            <label
+                style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Cidades
+                (Vazio = Todas)</label>
+            <select name="cidades" multiple
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; height: 42px;"
+                title="Segure Ctrl/Cmd para selecionar várias">
+                {% for c in cidades %}
+                <option value="{{ c.id }}">{{ c.nome }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="width: 100px;">
+            <label
+                style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Quantidade</label>
+            <input type="number" name="quantidade" value="1" required
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+        </div>
+        <div style="width: 100px;">
+            <label
+                style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Peso</label>
+            <input type="number" name="probabilidade" value="1" title="Maior = Mais frequente" required
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+        </div>
+        <div style="width: 120px;">
+            <label
+                style="display: block; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 5px;">Posições</label>
+            <input type="text" name="posicoes" placeholder="Ex: 2,5" required
+                style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+        </div>
+        <div>
+            <button type="submit" class="btn-primary" style="padding: 10px 20px; white-space: nowrap;"><i
+                    class="fas fa-plus"></i> Adicionar Prêmio</button>
+        </div>
+    </form>
+</div>
+
+<div class="data-table-container">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Prêmio</th>
+                <th>Localidade</th>
+                <th>Quantidade Atual</th>
+                <th>Peso (Frequência)</th>
+                <th>Posições (0-12)</th>
+                <th>Ação</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in premios %}
+            <tr>
+                <td><strong>{{ p.nome }}</strong></td>
+                <td>
+                    <select name="cidades" multiple form="form_premio_{{ p.id }}"
+                        style="width: 150px; padding: 5px; border: 1px solid #ddd; border-radius: 8px; height: 60px;"
+                        title="Segure Ctrl/Cmd para selecionar várias">
+                        {% for c in cidades %}
+                        <option value="{{ c.id }}" {% if c in p.cidades_permitidas.all %} selected {% endif %}>
+                            {{ c.nome }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </td>
+                <td>
+                    <input type="number" name="quantidade" value="{{ p.quantidade }}" form="form_premio_{{ p.id }}"
+                        style="width: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 8px;">
+                </td>
+                <td>
+                    <input type="number" name="probabilidade" value="{{ p.probabilidade }}"
+                        form="form_premio_{{ p.id }}"
+                        style="width: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 8px;"
+                        title="Maior o peso, maior a chance">
+                </td>
+                <td>
+                    <input type="text" name="posicoes" value="{{ p.posicoes }}" form="form_premio_{{ p.id }}"
+                        style="width: 100px; padding: 8px; border: 1px solid #ddd; border-radius: 8px;"
+                        placeholder="Ex: 4,7">
+                </td>
+                <td>
+                    <form method="post" id="form_premio_{{ p.id }}" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="premio_id" value="{{ p.id }}">
+                        <button type="submit" class="badge badge-success" style="border:none; cursor:pointer;"><i
+                                class="fas fa-save"></i> Atualizar</button>
+                    </form>
+                </td>
+                <td>
+                    <form method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="excluir_premio">
+                        <input type="hidden" name="premio_id" value="{{ p.id }}">
+                        <button type="submit" class="badge badge-success"
+                            style="background: #fee2e2; color: #b91c1c; border:none; cursor:pointer;"
+                            onclick="return confirm('Tem certeza que deseja apagar o prêmio {{ p.nome }}?');"><i
+                                class="fas fa-trash"></i> Apagar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

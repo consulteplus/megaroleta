@@ -1,0 +1,49 @@
+{% extends 'roleta/dashboard/base.html' %}
+
+{% block title %}Configurações do Clube - Dashboard{% endblock %}
+{% block page_title %}Configurações do {{ config.nome_clube }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-grid" style="grid-template-columns: 1fr;">
+    <div class="card" style="max-width: 600px;">
+        <h3 style="margin-bottom: 25px;">Ajustes Globais</h3>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group" style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Nome do Clube</label>
+                <input type="text" name="nome_clube" value="{{ config.nome_clube }}" class="form-control"
+                    style="width: 100%;" required>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">Custo por Giro (Pontos)</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="number" name="custo_giro" value="{{ config.custo_giro }}" class="form-control"
+                        style="width: 120px;" required min="0">
+                    <span style="color: #64748b; font-size: 14px;">pontos por tentativa</span>
+                </div>
+                <small style="color: #94a3b8; display: block; margin-top: 5px;">
+                    <i class="fas fa-info-circle"></i> Cada vez que um membro girar a roleta, este valor será descontado
+                    do seu saldo.
+                </small>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: 600;">XP Ganho por Giro</label>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="number" name="xp_por_giro" value="{{ config.xp_por_giro }}" class="form-control"
+                        style="width: 120px;" required min="0">
+                    <span style="color: #64748b; font-size: 14px;">XP garantido</span>
+                </div>
+                <small style="color: #94a3b8; display: block; margin-top: 5px;">
+                    <i class="fas fa-gift"></i> Quantidade passiva de Pontos de Experiência (XP) que o usuário ganha ao
+                    jogar.
+                </small>
+            </div>
+
+            <button type="submit" class="btn-primary" style="width: 100%; padding: 12px;">Salvar Configurações</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

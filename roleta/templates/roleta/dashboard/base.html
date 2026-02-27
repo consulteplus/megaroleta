@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard Roleta{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'roleta/css/dashboard.css' %}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+    <aside class="sidebar">
+        <div class="sidebar-logo">Roleta Admin</div>
+        <nav>
+            <a href="{% url 'dashboard_home' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'dashboard_home' %}active{% endif %}">
+                <i class="fas fa-chart-line"></i> Resumo
+            </a>
+            <a href="{% url 'dashboard_premios' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'dashboard_premios' %}active{% endif %}">
+                <i class="fas fa-gift"></i> Prêmios
+            </a>
+            <a href="{% url 'dashboard_participantes' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'dashboard_participantes' %}active{% endif %}">
+                <i class="fas fa-users"></i> Membros
+            </a>
+            <a href="{% url 'dashboard_cidades' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'dashboard_cidades' %}active{% endif %}">
+                <i class="fas fa-map-marker-alt"></i> Cidades
+            </a>
+            <a href="{% url 'dashboard_giros' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'dashboard_giros' %}active{% endif %}">
+                <i class="fas fa-history"></i> Histórico de Giros
+            </a>
+            <a href="{% url 'dashboard_assets' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'dashboard_assets' %}active{% endif %}">
+                <i class="fas fa-paint-brush"></i> Visual
+            </a>
+            <a href="{% url 'dashboard_gamificacao' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'dashboard_gamificacao' %}active{% endif %}">
+                <i class="fas fa-gamepad"></i> Gamificação
+            </a>
+            <a href="{% url 'dashboard_config' %}"
+                class="nav-item {% if request.resolver_match.url_name == 'dashboard_config' %}active{% endif %}">
+                <i class="fas fa-cog"></i> Configurações
+            </a>
+            <a href="{% url 'roleta_index' %}" class="nav-item" target="_blank">
+                <i class="fas fa-external-link-alt"></i> Ver Roleta
+            </a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <div class="top-bar">
+            <h1 class="page-title">{% block page_title %}{% endblock %}</h1>
+            <div class="user-info">
+                <span>Olá, <strong>{{ user.username }}</strong></span>
+            </div>
+        </div>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div style="padding: 15px; border-radius: 10px; margin-bottom: 20px; background: #c6f6d5; color: #22543d;">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+</body>
+
+</html>
